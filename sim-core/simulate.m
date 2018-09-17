@@ -1108,7 +1108,7 @@ function setFigureAlwaysOnTop(h, enabled)
     if nargin < 2; enabled = true; end
     jh = get(h, 'JavaFrame');
     drawnow;    
-    jh.fHG1Client.getWindow.setAlwaysOnTop(enabled);		
+    jh.fHG2Client.getWindow.setAlwaysOnTop(enabled);		
 end
 
 % maximizes a figure using Java properties
