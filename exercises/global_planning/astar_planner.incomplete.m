@@ -85,11 +85,12 @@ function obj = astar_planner(map, start, goal)
             while ~closed(goalCell) && nOpenCells > 0 && iterations > 0 
                 iterations = iterations - 1;
                 
-                % 1.) Remove open cell with least f_cost and put it into Closed List
-                cell = openHeap_popHead();
-                closed(cell) = true;
+                % TODO: Remove open cell with least f_cost and put it into Closed List
+                
 
-                % 2.) Determine set of existing neighbours.
+                
+                
+                % Determine set of existing neighbours.
                 [y, x] = ind2sub(sz, cell);        
                 validNeighbours = true(1, 8);
                 if (x == 1); validNeighbours([1 7 8]) = false; end
@@ -100,55 +101,46 @@ function obj = astar_planner(map, start, goal)
                 for i = 1:8
                     if validNeighbours(i)
                         neighbourCell = cell + neighbourOffsets(i);
-
+                        
                         % Ignore obstacles and closed cells
                         if map(neighbourCell) || closed(neighbourCell); continue; end
-                                                
+
                         heapPos = openHeapPos(neighbourCell);
                         if heapPos > 0
                             % If a cell has a valid heapPos (> 0), it is in
                             % the Open List (Heap)
-                            % --> check if its g_cost can be reduced
-                            g_cost_reduction = g_cost(neighbourCell) - (g_cost(cell) + neighbourCosts(i));
-                            if g_cost_reduction > 0
-                                % g_cost reduction possible, update cell
-                                g_cost(neighbourCell) = g_cost(neighbourCell) - g_cost_reduction;
-                                f_cost(neighbourCell) = f_cost(neighbourCell) - g_cost_reduction;
-                                parent(neighbourCell) = cell;
-                                % since the h_cost has not changed,
-                                % reducing the g_cost will also reduce the
-                                % f_cost (sorting key for the Open heap).
-                                % Hence, the cell might move upwards in the
-                                % Open Heap.
-                                openHeap_propagateToHead(neighbourCell);
-                            end                    
+                            
+                            % TODO: check if its g_cost can be reduced
+                            % (Do not forget to update the Heap!)
+
+                        
+                        
+                        
+                        
+                            
+                            
                         else
-                            % cell is yet unknown -> initialize it and add
-                            % it to the Open Heap
-                            g_cost(neighbourCell) = g_cost(cell) + neighbourCosts(i);
-                            [y, x] = ind2sub(sz, neighbourCell);                    
-                            delta = abs([x - x_goal, y - y_goal]);
-                            h_cost = 10 * abs(delta(1) - delta(2)) + 14 * min(delta);
-                            f_cost(neighbourCell) = g_cost(neighbourCell) + h_cost; 
-                            parent(neighbourCell) = cell;
-                            openHeap_add(neighbourCell);
+                            % cell is unknown 
+                            % TODO: initialize cell and add it to the Open Heap
+                            
+                            
+                            
+                            
+                            
                         end
                     end
                 end
             end % end of A* loop
             
-            if closed(goalCell)
-                % we found a path - extract and return it
-                idx = goalCell;            
-                waypointCells = zeros(1, w + h); % path length guess (exact size does not matter, preallocation prevents Lint warning)
-                nCells = 0;
-                while idx ~= 0
-                    nCells = nCells + 1;
-                    waypointCells(nCells) = idx;
-                    idx = parent(idx);
-                end
-                [Y, X] = ind2sub(sz, waypointCells(nCells:-1:1));
-                waypoints = [X; Y];                
+            if closed(goalCell) % we found a path                
+                
+                % TODO: extract and return the path
+                
+
+                
+                
+                waypoints = 
+                
             elseif nOpenCells == 0
                 % no path found and no open cells left -> there is no
                 % unblocked path between start and goal
