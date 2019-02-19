@@ -120,89 +120,68 @@ function rrt_2d()
     % Perform the requested number of RRT(*) iterations
     function iterate(iterations)        
         for iter = 1:iterations
-            % draw a sample
-            if rand() < goalBias && isempty(goalNodes)
-                % goal bias: use the goal position as sample
-                sample = goal;
-            else
-                % pick a random position within the map
-                sample = [sizeX(1) + rand() * (sizeX(2) - sizeX(1)); ...
-                          sizeY(1) + rand() * (sizeY(2) - sizeY(1))];
-            end
+            % TODO: draw a sample (Do not forget to implement the goal bias!)
+
             
-            % Determine the (euclidian) distance from the sample to all 
-            % nodes in the tree...
-            allNodePositions = [nodes.pos];
-            distSq = sum((allNodePositions - repmat(sample, 1, size(nodes, 2))).^2);
-            % ...and pick the closest node
-            [minDistSq, minIdx] = min(distSq);                
-            nearPos = nodes(minIdx).pos;
+            % TODO: pick the closest node
             
-            % determine the position of the potential new node
-            segmentLength = min(sqrt(minDistSq), maxExtensionDistance);                        
-            delta = sample - nearPos;        
-            newPos = nearPos + segmentLength * delta / norm(delta);
+            nearPos =             
+            
+            % TODO: determine the position of the potential new node
+            
+            newPos = 
             
             if ~collisionCheck(nearPos, newPos, obstacles)            
-                % If the connection to the new node is not blocked by
-                % obstacles, add it to the tree
-                newIdx = length(nodes) + 1;
-                nodes(newIdx).pos = newPos;                
-                nodes(newIdx).parent = minIdx;
-                nodes(newIdx).cost = nodes(minIdx).cost + norm(newPos - nearPos);
-                nodes(minIdx).children(end + 1) = newIdx;
-                % Check, if the new node is in the goal region
-                if norm(newPos - goal) < goalDistance
-                    goalNodes(end + 1) = newIdx;
-                end
+                % TODO: add the new node to the tree
+
+                newIdx = 
+                
+                % TODO: check if the new node is in the goal region and if yes, add its index to goalNodes
+                
+                
                 
                 % Add the new branch to the figure
                 nodes(newIdx).trajHandle = line('Parent', ax, 'XData', [nearPos(1), newPos(1)], 'YData', [nearPos(2), newPos(2)], 'Color', [0 0 0]);                                
                 
-                % RRT* part: (omit until we got an initial solution)
-                if ~isempty(goalNodes) && doRewiring
-                    % check nodes in neighbourhood for better connections
-                    distSq = sum((allNodePositions - repmat(newPos, 1, size(nodes, 2) - 1)).^2);
-                    idxNeighbours = find(distSq < neighbourhoodRadius * neighbourhoodRadius);                    
-                    % sort neighbours according to their (euclidian) distance
-                    neighbourDistsSq = distSq(idxNeighbours);
-                    [~, sortedIdx] = sort(neighbourDistsSq);                    
-                    idxNeighbours = idxNeighbours(sortedIdx);
-                    % check each neighbour for better (a.k.a. shorter) connections via the newly added node
+                % RRT* part
+                if ~isempty(goalNodes) && doRewiring                    
                     
+                    % TODO: collect neighbours and sort them by their distance from the new node
+                    neighbourhoodRadius = 2.5 * maxExtensionDistance;
+                    
+                    
+                    
+                                        
+                    
+                    % TODO: for each neighbour, except the the new node and its ancestors...
                     ancestors = getNodeSequence(newIdx);
-                    for idxN = idxNeighbours
+                    for idxN = 
                         % omit any ancestor of the new node (which would result in an unconnected graph)
                         if any(idxN == ancestors); continue; end
-                        
-                        % compute path length via the new node
-                        nPos = nodes(idxN).pos;
-                        newCost = nodes(newIdx).cost + norm(newPos - nPos);
 
-                        if nodes(newIdx).cost + norm(newPos - nPos) < nodes(idxN).cost
-                            if ~collisionCheck(newPos, nPos, obstacles)
-                                % If path length can be reduced and the new connection is not blocked by obstacles, rewire the neighbour.
-                                nodes(nodes(idxN).parent).children = setdiff(nodes(nodes(idxN).parent).children, idxN);
-                                nodes(newIdx).children(end + 1) = idxN;
-                                nodes(idxN).parent = newIdx;                                
-                                % update the neighbour's incoming edge in the figure
-                                set(nodes(idxN).trajHandle, 'XData', [newPos(1), nPos(1)], 'YData', [newPos(2), nPos(2)]);
-                                % propagate cost reduction recursively to the leafs
-                                reduceCostRecursive(idxN, nodes(idxN).cost - newCost);
-                            end
+                        % TODO: compute potential cost after rewiring
+                        newCost = 
+
+                        % TODO: Check for cost reduction and collisions                                
+                        if                            
+                            % TODO: rewire neighbour to new node
+
+                            
+                            % TODO: update the neighbour's incoming edge in the figure (Hint: modify the 'XData', and 'YData' properties)
+                            set(nodes(idxN).trajHandle,  
+                            
+                            % TODO: propagate cost reduction of the neighbour recursively 
+                            
+                            
                         end
                     end
                 end
                 
-                % If any node is located within the goal region, select the
-                % best one and mark it as goal in the figure.
-                % This will also also highlight the branches of the goal
-                % path
-                if ~isempty(goalNodes)
-                    goalCosts = [nodes(goalNodes).cost];
-                    [~, bestGoalCostIdx] = min(goalCosts);
-                    setGoal(goalNodes(bestGoalCostIdx));
-                end
+                % TODO: select the best goal from goalNodes and highlight
+                % it using the setGoal(...) function
+
+            
+                
             end
         end
         
@@ -212,16 +191,7 @@ function rrt_2d()
             titleText = [titleText sprintf(', best path cost (length) = %f\n', nodes(goalIdx).cost)];
         end
         title(titleText);
-    end
-    
-    % function for recursive update of the node(xyz).cost member after a 
-    % cost change
-    function reduceCostRecursive(idx, delta)
-        nodes(idx).cost = nodes(idx).cost - delta;
-        for iChild = nodes(idx).children
-            reduceCostRecursive(iChild, delta);
-        end
-    end
+    end    
 
     % Mark a node as goal and highlight the corresponding sequence of
     % branches.
